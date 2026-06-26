@@ -1,4 +1,5 @@
 using DustInTheWind.Mintos.Toolkit;
+using System.ComponentModel.DataAnnotations;
 
 var dictCategories = new Dictionary<string, string>()
 {
@@ -25,12 +26,17 @@ var dictCategories = new Dictionary<string, string>()
   ["Withholding tax"] = "Tax",
 };
 
+var stopWatch = System.Diagnostics.Stopwatch.StartNew();
 var tasks = Directory
     .GetFiles(@"C:\Personal\Mintos", "*.csv")
     .Select(filePath => StatementDocument.LoadFromFileAsync(filePath))
     .ToArray();
 
 var documents = await Task.WhenAll(tasks);
+
+stopWatch.Stop();
+
+Console.WriteLine($"Loaded {documents.Length} documents in {stopWatch.ElapsedMilliseconds} ms");
 
 foreach (var grp in documents.SelectMany(doc => doc).GroupBy(GetCategory))
 {
