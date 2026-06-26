@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -22,7 +22,7 @@
     <PackageReference Include="DustInTheWind.Revolut.Toolkit" />
     <PackageReference Include="DustInTheWind.SaltBank.Toolkit" />
     <PackageReference Include="DustInTheWind.Xtb.Toolkit" />
-    
+    <PackageReference Include="System.CommandLine" />
   </ItemGroup>
 
 </Project>
