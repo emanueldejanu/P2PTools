@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);NU1605</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CsvHelper" />
+    <PackageReference Include="DustInTheWind.Bcr.Toolkit" />
+    <PackageReference Include="DustInTheWind.Bnr.Toolkit" />
+    <PackageReference Include="DustInTheWind.Fintown.Toolkit" />
+    <PackageReference Include="DustInTheWind.Ing.Toolkit" />
+    <PackageReference Include="DustInTheWind.Ins.Toolkit" />
+    <PackageReference Include="DustInTheWind.Mintos.Toolkit" />
+    <PackageReference Include="DustInTheWind.NN.Toolkit" />
+    <PackageReference Include="DustInTheWind.PeerBerry.Toolkit" />
+    <PackageReference Include="DustInTheWind.Quanloop.Toolkit" />
+    <PackageReference Include="DustInTheWind.Revolut.Toolkit" />
+    <PackageReference Include="DustInTheWind.SaltBank.Toolkit" />
+    <PackageReference Include="DustInTheWind.Xtb.Toolkit" />
+    
+  </ItemGroup>
+
+</Project>
