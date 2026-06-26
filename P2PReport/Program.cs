@@ -112,6 +112,7 @@ static string GetCategory(TransactionRecord record)
     ["Tax withholding - Bonds"] = "Tax",
     ["Withdrawal"] = "Withdrawal",
     ["Withholding tax"] = "Tax",
+    ["Secondary market transaction - discount or premium"] = "Internal",
   };
 
   var mintosLabel = record.PaymentType.GetLabel();
