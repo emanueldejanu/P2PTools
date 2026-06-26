@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "P2PReport": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Personal\\Mintos"
+    }
+  }
+}

@@ -5,11 +5,9 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <NoWarn>$(NoWarn);NU1605</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CsvHelper" />
     <PackageReference Include="DustInTheWind.Bcr.Toolkit" />
     <PackageReference Include="DustInTheWind.Bnr.Toolkit" />
     <PackageReference Include="DustInTheWind.Fintown.Toolkit" />

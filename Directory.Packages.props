@@ -1,24 +1,21 @@
 <Project>
-
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageVersion Include="CsvHelper" Version="30.0.1" />
-    <PackageVersion Include="DustInTheWind.Bcr.Toolkit" Version="1.0.0" />
-    <PackageVersion Include="DustInTheWind.Bnr.Toolkit" Version="1.2.0" />
-    <PackageVersion Include="DustInTheWind.Fintown.Toolkit" Version="1.3.0" />
-    <PackageVersion Include="DustInTheWind.Ing.Toolkit" Version="1.1.0" />
-    <PackageVersion Include="DustInTheWind.Ins.Toolkit" Version="1.3.0" />
-    <PackageVersion Include="DustInTheWind.Mintos.Toolkit" Version="1.5.0" />
-    <PackageVersion Include="DustInTheWind.NN.Toolkit" Version="1.5.0" />
-    <PackageVersion Include="DustInTheWind.PeerBerry.Toolkit" Version="1.0.0" />
-    <PackageVersion Include="DustInTheWind.Quanloop.Toolkit" Version="1.0.0" />
-    <PackageVersion Include="DustInTheWind.Revolut.Toolkit" Version="1.1.0" />
-    <PackageVersion Include="DustInTheWind.SaltBank.Toolkit" Version="1.2.0" />
-    <PackageVersion Include="DustInTheWind.Xtb.Toolkit" Version="1.0.0" />
+    <PackageVersion Include="CsvHelper" Version="33.1.0" />
+    <PackageVersion Include="DustInTheWind.Bcr.Toolkit" Version="1.1.0" />
+    <PackageVersion Include="DustInTheWind.Bnr.Toolkit" Version="1.3.0" />
+    <PackageVersion Include="DustInTheWind.Fintown.Toolkit" Version="1.4.0" />
+    <PackageVersion Include="DustInTheWind.Ing.Toolkit" Version="1.3.0" />
+    <PackageVersion Include="DustInTheWind.Ins.Toolkit" Version="1.4.0" />
+    <PackageVersion Include="DustInTheWind.Mintos.Toolkit" Version="1.6.0" />
+    <PackageVersion Include="DustInTheWind.NN.Toolkit" Version="1.6.0" />
+    <PackageVersion Include="DustInTheWind.PeerBerry.Toolkit" Version="1.1.0" />
+    <PackageVersion Include="DustInTheWind.Quanloop.Toolkit" Version="1.1.0" />
+    <PackageVersion Include="DustInTheWind.Revolut.Toolkit" Version="1.2.0" />
+    <PackageVersion Include="DustInTheWind.SaltBank.Toolkit" Version="1.3.0" />
+    <PackageVersion Include="DustInTheWind.Xtb.Toolkit" Version="1.1.0" />
     <PackageVersion Include="System.CommandLine" Version="2.0.9" />
   </ItemGroup>
-
 </Project>
