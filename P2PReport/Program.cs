@@ -1,5 +1,13 @@
 using System.CommandLine;
-using DustInTheWind.Mintos.Toolkit;
+using P2PReport.Adapters;
+
+IPlatformAdapter[] adapters =
+[
+  new MintosAdapter(),
+  new PeerBerryAdapter(),
+  new FintownAdapter(),
+  new QuanloopAdapter(),
+];
 
 var pathArgument = new Argument<string>("path")
 {
@@ -11,34 +19,37 @@ var outputOption = new Option<FileInfo?>("--output", "-o")
   Description = "Output CSV file path (defaults to console)"
 };
 
-var rootCommand = new RootCommand("P2P Report - Mintos monthly category report");
-rootCommand.Arguments.Add(pathArgument);
-rootCommand.Options.Add(outputOption);
+var platformOption = new Option<string>("--platform", "-p")
+{
+  Description = "Platform name (mintos, peerberry, fintown, quanloop)"
+};
+platformOption.AcceptOnlyFromAmong([.. adapters.Select(a => a.Name)]);
 
-rootCommand.SetAction(async (parseResult, cancellationToken) =>
+var csvCommand = new Command("csv", "Export monthly category report as CSV");
+csvCommand.Arguments.Add(pathArgument);
+csvCommand.Options.Add(outputOption);
+csvCommand.Options.Add(platformOption);
+
+csvCommand.SetAction(async (parseResult, cancellationToken) =>
 {
   var path = parseResult.GetValue(pathArgument)!;
   var outputFile = parseResult.GetValue(outputOption);
+  var platformName = parseResult.GetValue(platformOption)!;
 
+  var adapter = adapters.First(a => a.Name == platformName);
   var csvFiles = GetCsvFiles(path);
 
   var stopWatch = System.Diagnostics.Stopwatch.StartNew();
-  var tasks = csvFiles
-      .Select(filePath => StatementDocument.LoadFromFileAsync(filePath))
-      .ToArray();
-
-  var documents = await Task.WhenAll(tasks);
+  var transactions = await adapter.LoadTransactionsAsync(csvFiles);
   stopWatch.Stop();
 
-  Console.Error.WriteLine($"Loaded {documents.Length} documents in {stopWatch.ElapsedMilliseconds} ms");
-
-  var records = documents.SelectMany(doc => doc).ToList();
+  Console.Error.WriteLine($"Loaded {transactions.Count} transactions in {stopWatch.ElapsedMilliseconds} ms");
 
   string[] categories = ["Deposit", "Withdrawal", "Gain", "Fee", "Tax", "Internal"];
 
-  var monthlyData = records
-      .GroupBy(r => (Month: new DateOnly(r.Date.Year, r.Date.Month, 1), Category: GetCategory(r)))
-      .ToDictionary(g => g.Key, g => g.Sum(r => r.Turnover));
+  var monthlyData = transactions
+      .GroupBy(r => (Month: new DateOnly(r.Date.Year, r.Date.Month, 1), r.Category))
+      .ToDictionary(g => g.Key, g => g.Sum(r => r.Amount));
 
   var months = monthlyData.Keys
       .Select(k => k.Month)
@@ -74,6 +85,9 @@ rootCommand.SetAction(async (parseResult, cancellationToken) =>
   }
 });
 
+var rootCommand = new RootCommand("P2P Report - monthly category report for P2P platforms");
+rootCommand.Subcommands.Add(csvCommand);
+
 return rootCommand.Parse(args).Invoke();
 
 static string[] GetCsvFiles(string path)
@@ -85,36 +99,4 @@ static string[] GetCsvFiles(string path)
     return Directory.GetFiles(path, "*.csv");
 
   throw new FileNotFoundException($"Path not found: {path}");
-}
-
-static string GetCategory(TransactionRecord record)
-{
-  var dictCategories = new Dictionary<string, string>()
-  {
-    ["Bond investment principal increase"] = "Internal",
-    ["Bonus"] = "Gain",
-    ["Deposits"] = "Deposit",
-    ["Interest earned on overdue payments"] = "Gain",
-    ["Interest received"] = "Gain",
-    ["Interest received - Bonds"] = "Gain",
-    ["Interest received from loan repurchase"] = "Gain",
-    ["Investment"] = "Internal",
-    ["Late fees received"] = "Gain",
-    ["Loan Portfolios fee"] = "Fee",
-    ["Notes cashout from Mintos strategies"] = "Internal",
-    ["Principal received"] = "Internal",
-    ["Principal received from loan repurchase"] = "Internal",
-    ["Principal received from repurchase of small loan parts"] = "Internal",
-    ["Real estate interest income"] = "Gain",
-    ["Real estate investment principal increase"] = "Internal",
-    ["Real estate tax withholding"] = "Tax",
-    ["Secondary market transaction"] = "Internal",
-    ["Tax withholding - Bonds"] = "Tax",
-    ["Withdrawal"] = "Withdrawal",
-    ["Withholding tax"] = "Tax",
-    ["Secondary market transaction - discount or premium"] = "Internal",
-  };
-
-  var mintosLabel = record.PaymentType.GetLabel();
-  return dictCategories[mintosLabel];
 }
