@@ -25,16 +25,25 @@ var platformOption = new Option<string>("--platform", "-p")
 };
 platformOption.AcceptOnlyFromAmong([.. adapters.Select(a => a.Name)]);
 
-var csvCommand = new Command("csv", "Export monthly category report as CSV");
+var groupByOption = new Option<string>("--group-by", "-g")
+{
+  Description = "Group by period: day, month, or year",
+  DefaultValueFactory = _ => "month"
+};
+groupByOption.AcceptOnlyFromAmong("day", "month", "year");
+
+var csvCommand = new Command("csv", "Export category report as CSV");
 csvCommand.Arguments.Add(pathArgument);
 csvCommand.Options.Add(outputOption);
 csvCommand.Options.Add(platformOption);
+csvCommand.Options.Add(groupByOption);
 
 csvCommand.SetAction(async (parseResult, cancellationToken) =>
 {
   var path = parseResult.GetValue(pathArgument)!;
   var outputFile = parseResult.GetValue(outputOption);
   var platformName = parseResult.GetValue(platformOption)!;
+  var groupBy = parseResult.GetValue(groupByOption)!;
 
   var adapter = adapters.First(a => a.Name == platformName);
   var csvFiles = GetCsvFiles(path);
@@ -47,15 +56,22 @@ csvCommand.SetAction(async (parseResult, cancellationToken) =>
 
   string[] categories = ["Deposit", "Withdrawal", "Gain", "Fee", "Tax", "Internal"];
 
-  var monthlyData = transactions
-      .GroupBy(r => (Month: new DateOnly(r.Date.Year, r.Date.Month, 1), r.Category))
+  var periodData = transactions
+      .GroupBy(r => (Period: GetPeriod(r.Date, groupBy), r.Category))
       .ToDictionary(g => g.Key, g => g.Sum(r => r.Amount));
 
-  var months = monthlyData.Keys
-      .Select(k => k.Month)
+  var periods = periodData.Keys
+      .Select(k => k.Period)
       .Distinct()
-      .OrderBy(m => m)
+      .OrderBy(p => p)
       .ToList();
+
+  string dateFormat = groupBy switch
+  {
+    "day" => "yyyy-MM-dd",
+    "year" => "yyyy",
+    _ => "yyyy-MM"
+  };
 
   TextWriter writer = outputFile is not null
       ? new StreamWriter(outputFile.FullName)
@@ -63,19 +79,20 @@ csvCommand.SetAction(async (parseResult, cancellationToken) =>
 
   try
   {
-    writer.WriteLine("Month," + string.Join(",", categories) + ",Total");
+    writer.WriteLine("Period," + string.Join(",", categories));
 
-    foreach (var month in months)
+    foreach (var period in periods)
     {
       var values = categories
-          .Select(cat => monthlyData.GetValueOrDefault((month, cat)))
+          .Select(cat => periodData.GetValueOrDefault((period, cat)))
           .ToList();
 
-      var total = values.Sum();
+      if (values.All(v => v == 0))
+        continue;
+
       var formatted = values.Select(v => v.ToString("+0.00;-0.00;0.00"));
 
-      writer.WriteLine(
-          $"{month:yyyy-MM},{string.Join(",", formatted)},{total.ToString("+0.00;-0.00;0.00")}");
+      writer.WriteLine($"{period.ToString(dateFormat)},{string.Join(",", formatted)}");
     }
   }
   finally
@@ -85,10 +102,17 @@ csvCommand.SetAction(async (parseResult, cancellationToken) =>
   }
 });
 
-var rootCommand = new RootCommand("P2P Report - monthly category report for P2P platforms");
+var rootCommand = new RootCommand("P2P Report - category report for P2P platforms");
 rootCommand.Subcommands.Add(csvCommand);
 
 return rootCommand.Parse(args).Invoke();
+
+static DateOnly GetPeriod(DateOnly date, string groupBy) => groupBy switch
+{
+  "day" => date,
+  "year" => new DateOnly(date.Year, 1, 1),
+  _ => new DateOnly(date.Year, date.Month, 1)
+};
 
 static string[] GetCsvFiles(string path)
 {
