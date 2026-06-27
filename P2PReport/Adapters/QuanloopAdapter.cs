@@ -19,25 +19,29 @@ public class QuanloopAdapter : IPlatformAdapter
         .Select(r => new Transaction(
             r.Date,
             r.Amount,
-            GetCategory(r.Description, r.Amount)))
+            GetCategory(r)))
         .ToList();
   }
 
-  private static string GetCategory(string description, decimal amount)
+  private static string GetCategory(TransactionRecord record)
   {
-    var lower = description.ToLowerInvariant();
+    var account = record.Account?.ToLowerInvariant() ?? string.Empty;
+    var lower = record.Description.ToLowerInvariant();
 
-    if (lower.Contains("interest"))
+    if (lower.Contains("interest") || lower.Contains("cashback") || (lower.Contains("referral") && account.Length == 0))
       return "Gain";
     if (lower.Contains("deposit") || lower.Contains("top up"))
       return "Deposit";
-    if (lower.Contains("withdrawal"))
+    if (lower.Contains("withdrawal") || (lower.Contains("referral") && account.Length > 0))
       return "Withdrawal";
     if (lower.Contains("fee"))
       return "Fee";
     if (lower.Contains("tax"))
       return "Tax";
 
-    return "Internal";
+    if (account.Length > 0 && !record.Counterpart.Equals("quanloop", StringComparison.OrdinalIgnoreCase))
+      return "Deposit";
+
+    throw new InvalidDataException("Unknown transaction category: " + record.Description);
   }
 }
